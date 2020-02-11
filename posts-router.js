@@ -2,6 +2,53 @@ const express = require("express");
 const router = express.Router();
 const db = require("./data/db");
 
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////GET ROUTES//////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+// @route  - GET /api/posts
+// @desc   - returns all posts
+// @access - public
+router.get("/", async (req, res) => {
+  try {
+    const posts = await db.find();
+    res.status(200).json(posts);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "The post's information could not be retrieved." });
+  }
+});
+
+// @route  - GET /api/posts/:id
+// @desc   - returns a post by id
+// @access - public
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await db.findById(id);
+
+    if (!post.length) {
+      res
+        .status(404)
+        .json({ message: "The post with the specified ID does not exist." });
+    }
+
+    res.status(200).json(post);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "The post information could not be retrieved." });
+  }
+});
+
+///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////POST ROUTES////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+// @route  - POST /api/posts
+// @desc   - creates a post
+// @access - public
 router.post("/", async (req, res) => {
   const { body } = req;
 
@@ -22,6 +69,9 @@ router.post("/", async (req, res) => {
   }
 });
 
+// @route  - POST /api/posts/:id/comments
+// @desc   - creates a comment for a given post
+// @access - public
 router.post("/:id/comments", async (req, res) => {
   const {
     body,
@@ -53,52 +103,13 @@ router.post("/:id/comments", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
-  try {
-    const posts = await db.find();
-    res.status(200).json(posts);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "The post's information could not be retrieved." });
-  }
-});
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////PUT ROUTES//////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const post = await db.findById(id);
-
-    if (!post.length) {
-      res
-        .status(404)
-        .json({ message: "The post with the specified ID does not exist." });
-    }
-
-    res.status(200).json(post);
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "The post information could not be retrieved." });
-  }
-});
-
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const deletedItem = await db.remove(id);
-    if (!deletedItem) {
-      res
-        .status(404)
-        .json({ message: "The psot with the specified ID does not exist" });
-    }
-
-    res.status(200).send("successfully deleted comment");
-  } catch (error) {
-    res.status(500).json({ error: "The post could not be removed" });
-  }
-});
-
+// @route  - PUT /api/posts/:id
+// @desc   - updates a given post
+// @access - public
 router.put("/:id", async (req, res) => {
   const {
     body,
@@ -125,6 +136,29 @@ router.put("/:id", async (req, res) => {
     res
       .status(500)
       .json({ error: "The post information could not be modified." });
+  }
+});
+
+///////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////DELETE ROUTES//////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+// @route  - DELETE /api/posts/:id
+// @desc   - deletes a given post
+// @access - public
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedItem = await db.remove(id);
+    if (!deletedItem) {
+      res
+        .status(404)
+        .json({ message: "The psot with the specified ID does not exist" });
+    }
+
+    res.status(200).send("successfully deleted comment");
+  } catch (error) {
+    res.status(500).json({ error: "The post could not be removed" });
   }
 });
 
