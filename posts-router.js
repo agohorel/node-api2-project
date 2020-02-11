@@ -30,7 +30,6 @@ router.post("/:id/comments", async (req, res) => {
 
   try {
     const post = await db.findById(id);
-
     if (!post.length) {
       res
         .status(404)
@@ -48,11 +47,20 @@ router.post("/:id/comments", async (req, res) => {
     const newComment = await db.findCommentById(commentID.id);
     res.status(201).json(newComment);
   } catch (error) {
+    res.status(500).json({
+      error: "There was an error while saving the comment to the database."
+    });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const posts = await db.find();
+    res.status(200).json(posts);
+  } catch (err) {
     res
       .status(500)
-      .json({
-        error: "There was an error while saving the comment to the database."
-      });
+      .json({ error: "The post's information could not be retrieved." });
   }
 });
 
