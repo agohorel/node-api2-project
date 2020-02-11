@@ -42,6 +42,33 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// @route  - GET /api/posts/:id/comments
+// @desc   - returns all comments for a given post
+// @access - public
+router.get("/:id/comments", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await db.findById(id);
+    if (!post.length) {
+      res.status(404).json({
+        message: "The post with the specified ID does not exist."
+      });
+    } else {
+      const postComments = await db.findPostComments(id);
+      if (!postComments.length) {
+        res.status(404).json({
+          message: "The post with the specified ID does not have any comments."
+        });
+      }
+      res.status(200).json(postComments);
+    }
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "The comment's information could not be retrieved." });
+  }
+});
+
 ///////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////POST ROUTES////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
